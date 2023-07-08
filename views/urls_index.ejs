@@ -17,6 +17,7 @@
     <title>TinyApp</title>
   </head>
   <body>
+    <%- include('partials/_header') %>
     <main style="margin: 1em;">
       <h3>My URLs</h3>
       <table class="table">
@@ -33,11 +34,6 @@
               <td><%= urls[id] %></td>
             </tr>
           <% } %>
-          <tr>
-            <td>
-              <a href="#">Shorten URL here</a>
-            </td>
-          </tr>
         </tbody>
       </table>
     </main>
