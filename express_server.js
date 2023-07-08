@@ -4,6 +4,19 @@ const PORT = 8080; // default port 8080
 
 app.set("view engine", "ejs");
 
+function generateRandomString() {
+  let result = '';
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const length = 6;
+
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    result += characters.charAt(randomIndex);
+  }
+
+  return result;
+}
+
 app.use(express.urlencoded({ extended: true }));
 
 const urlDatabase = {
