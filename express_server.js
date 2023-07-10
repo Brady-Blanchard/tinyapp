@@ -4,25 +4,25 @@ const PORT = 8080; // default port 8080
 
 app.set("view engine", "ejs");
 
+// function to generate a random 6 character alphanumeric string to use for shortURL
 function generateRandomString() {
   let result = '';
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   const length = 6;
-
   for (let i = 0; i < length; i++) {
     const randomIndex = Math.floor(Math.random() * characters.length);
     result += characters.charAt(randomIndex);
   }
-
   return result;
 }
 
-app.use(express.urlencoded({ extended: true }));
-
+// object to store urls
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+
+app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -35,7 +35,7 @@ app.get("/urls", (req, res) => {
 
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
-  urlDatabase[shortURL] = req.body.longURL; // Log the POST request body to the console
+  urlDatabase[shortURL] = req.body.longURL;
   res.redirect(`/urls/${shortURL}`);
 });
 
@@ -53,12 +53,10 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
+// deletes short urls from the urlDatabase
+app.post("/urls/:id/delete", (req, res) => {
+  delete urlDatabase[req.params.id];
+  res.redirect("/urls");
 });
 
 app.listen(PORT, () => {
