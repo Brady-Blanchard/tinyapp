@@ -53,6 +53,11 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+app.post("/login", (req, res) => {
+  res.cookie(req.body.username, "submitted");
+  res.redirect("/urls")
+});
+
 // deletes short urls from the urlDatabase
 app.post("/urls/:id/delete", (req, res) => {
   delete urlDatabase[req.params.id];
