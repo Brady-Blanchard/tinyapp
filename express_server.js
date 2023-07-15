@@ -1,4 +1,4 @@
-const express = require ("express");
+const express = require("express");
 const cookieParser = require('cookie-parser');
 const app = express();
 const PORT = 8080; // default port 8080
@@ -10,7 +10,7 @@ app.use(cookieParser());
 
 
 // function to generate a random 6 character alphanumeric string to use for shortURL
-function generateRandomString() {
+const generateRandomString = function() {
   let result = '';
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   const length = 6;
@@ -19,7 +19,7 @@ function generateRandomString() {
     result += characters.charAt(randomIndex);
   }
   return result;
-}
+};
 
 // object to store urls
 const urlDatabase = {
@@ -27,6 +27,9 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+//////////////////
+// GET REQUESTS //
+//////////////////
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -47,6 +50,7 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
+// route to redirect to longURL
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
   res.redirect(longURL);
@@ -55,11 +59,15 @@ app.get("/u/:id", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   const templateVars = {
     username: req.cookies["username"],
-    id: req.params.id, 
+    id: req.params.id,
     longURL: urlDatabase[req.params.id],
   };
   res.render("urls_show", templateVars);
 });
+
+///////////////////
+// POST REQUESTS //
+///////////////////
 
 // generates a random shortURL and stores it inside the urldatabase as a key with a value of the longURL
 app.post("/urls", (req, res) => {
