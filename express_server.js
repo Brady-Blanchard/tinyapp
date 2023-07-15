@@ -59,6 +59,15 @@ app.post("/urls/:id/delete", (req, res) => {
   res.redirect("/urls");
 });
 
+// changes the longURL in urlDatabase to a new one defined by user input
+app.post("/urls/:id", (req, res) => {
+  const url = req.body.longURL;
+  urlDatabase[req.params.id] = url;
+  console.log(urlDatabase);
+  res.redirect("/urls");
+});
+
+// PORT = 8080
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);
 });
