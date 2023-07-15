@@ -68,6 +68,12 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${shortURL}`);
 });
 
+// logs out by clearing the username cookie and reloading /urls
+app.post("/logout", (req, res) => {
+  res.clearCookie("username");
+  res.redirect("/urls");
+});
+
 // submits the username as a cookie to login
 app.post("/login", (req, res) => {
   res.cookie("username", req.body.username);
@@ -84,7 +90,6 @@ app.post("/urls/:id/delete", (req, res) => {
 app.post("/urls/:id", (req, res) => {
   const url = req.body.longURL;
   urlDatabase[req.params.id] = url;
-  console.log(urlDatabase);
   res.redirect("/urls");
 });
 
