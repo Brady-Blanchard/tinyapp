@@ -35,6 +35,7 @@ app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
+// route to display all of our stored urls
 app.get("/urls", (req, res) => {
   const templateVars = {
     username: req.cookies["username"],
@@ -43,6 +44,7 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+// route to input a new url to shorten
 app.get("/urls/new", (req, res) => {
   const templateVars = {
     username: req.cookies["username"]
@@ -56,6 +58,7 @@ app.get("/u/:id", (req, res) => {
   res.redirect(longURL);
 });
 
+// route to display the data of a specific url
 app.get("/urls/:id", (req, res) => {
   const templateVars = {
     username: req.cookies["username"],
@@ -63,6 +66,11 @@ app.get("/urls/:id", (req, res) => {
     longURL: urlDatabase[req.params.id],
   };
   res.render("urls_show", templateVars);
+});
+
+// route to register email and password
+app.get("/register", (req, res) => {
+  res.render("urls_register");
 });
 
 ///////////////////
