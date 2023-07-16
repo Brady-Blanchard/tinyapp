@@ -27,6 +27,20 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+// object to store users
+const users = {
+  userRandomID: {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur",
+  },
+  user2RandomID: {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk",
+  },
+};
+
 //////////////////
 // GET REQUESTS //
 //////////////////
@@ -38,7 +52,7 @@ app.get("/", (req, res) => {
 // route to display all of our stored urls
 app.get("/urls", (req, res) => {
   const templateVars = {
-    username: req.cookies["username"],
+    user: users[req.cookies["user_id"]],
     urls: urlDatabase,
   };
   res.render("urls_index", templateVars);
@@ -47,7 +61,7 @@ app.get("/urls", (req, res) => {
 // route to input a new url to shorten
 app.get("/urls/new", (req, res) => {
   const templateVars = {
-    username: req.cookies["username"]
+    user: users[req.cookies["user_id"]]
   };
   res.render("urls_new", templateVars);
 });
@@ -61,7 +75,7 @@ app.get("/u/:id", (req, res) => {
 // route to display the data of a specific url
 app.get("/urls/:id", (req, res) => {
   const templateVars = {
-    username: req.cookies["username"],
+    user: users[req.cookies["user_id"]],
     id: req.params.id,
     longURL: urlDatabase[req.params.id],
   };
@@ -86,13 +100,12 @@ app.post("/urls", (req, res) => {
 
 // logs out by clearing the username cookie and reloading /urls
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
-  res.redirect("/urls");
+  res.clearCookie("user_id");
+  res.redirect("/register");
 });
 
 // submits the username as a cookie to login
 app.post("/login", (req, res) => {
-  res.cookie("username", req.body.username);
   res.redirect("/urls");
 });
 
@@ -107,6 +120,19 @@ app.post("/urls/:id", (req, res) => {
   const url = req.body.longURL;
   urlDatabase[req.params.id] = url;
   res.redirect("/urls");
+});
+
+// adds a new user to the users object
+app.post("/register", (req, res) => {
+  const randomID = generateRandomString();
+  res.cookie("user_id", randomID);
+  users[randomID] = {
+    id: randomID,
+    email: req.body.email,
+    password: req.body.password,
+  };
+  console.log(users);
+  res.redirect("/urls")
 });
 
 // PORT = 8080
