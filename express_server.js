@@ -26,7 +26,7 @@ const getUserByEmail = function(email) {
   for (const userID in users) {
     const user = users[userID];
     if (user.email === email) {
-      return userID;
+      return user;
     }
   }
   return false;
@@ -95,13 +95,20 @@ app.get("/urls/:id", (req, res) => {
 
 // route to register email and password
 app.get("/register", (req, res) => {
-  res.render("urls_register");
+  const templateVars = {
+    user: users[req.cookies["user_id"]],
+  }
+  res.render("urls_register", templateVars);
 });
 
-// 
+// route to Login with email and password
 app.get("/login", (req, res) => {
-  res.render("urls_login");
+  const templateVars = {
+    user: users[req.cookies["user_id"]],
+  }
+  res.render("urls_login", templateVars);
 });
+
 ///////////////////
 // POST REQUESTS //
 ///////////////////
@@ -116,12 +123,23 @@ app.post("/urls", (req, res) => {
 // logs out by clearing the username cookie and reloading /urls
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id");
-  res.redirect("/register");
+  res.redirect("/login");
 });
 
-// submits the username as a cookie to login
+// Logs in by checking if the email and password match an existing userID
 app.post("/login", (req, res) => {
-  res.redirect("/login");
+  if (getUserByEmail(req.body.email) !== false) {
+    const user = getUserByEmail(req.body.email)
+    console.log(user);
+    if (user.password === req.body.password) {
+      res.cookie("user_id", user.id);
+      res.redirect("/urls");
+    } else {
+      res.status(403).send("password is incorrect");
+    }
+  } else {
+    res.status(403).send("e-mail cannot be found");
+  }
 });
 
 // deletes short urls from the urlDatabase

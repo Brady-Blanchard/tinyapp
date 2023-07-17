@@ -12,18 +12,17 @@
   </head>
 
   <body>
-    <div class="card text-center">
-      <h3 class="card-title">Register</h3>
+    <%- include('partials/_header') %>
+    <main style="margin: 1em;">
+      <h3 class="font-weight-bold">Create Account</h3>
       <form method="POST" action="/register">
-        <p class="card-text">Email:
-          <input type="email" name="email" placeholder="Email">
-        </p>
-        <p class="card-text">Password:
-          <input type="password" name="password" placeholder="Password">
-        </p>
+        <p class="font-weight-bold">Email address</p>
+        <input type="email" name="email" placeholder="Enter email">
+        <p class="font-weight-bold">Password</p>
+        <input type="password" name="password" placeholder="Password">
         <button type="submit" class="btn btn-primary">Register</button>
       </form>
-    </div>
+    </main>
     <!-- Bootstrap JS -->
     <script
       src="https://code.jquery.com/jquery-3.3.1.slim.min.js"

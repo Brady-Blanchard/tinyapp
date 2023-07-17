@@ -25,12 +25,14 @@
         </p>
       </form>
     <% } else { %>
-      <form method="GET" action="/register">
-        <button type="submit" class="btn btn-outline-dark">Register</button>
-      </form>
-      <form method="GET" action="/login">
-        <button type="submit" class="btn btn-outline-dark">Login</button>
-      </form>
+      <div class="navbar-nav">
+        <form method="GET" action="/login">
+          <a class="nav-item nav-link font-weight-bold" href="/login">Login</a>
+        </form>
+        <form method="GET" action="/register">
+          <a class="nav-item nav-link font-weight-bold" href="/register">Register</a>
+        </form>
+      </div>
     <% } %>
   </nav>
 </header>
