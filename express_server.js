@@ -21,6 +21,17 @@ const generateRandomString = function() {
   return result;
 };
 
+// function to check if an email is already attached to a user in the users object
+const getUserByEmail = function(email) {
+  for (const userID in users) {
+    const user = users[userID];
+    if (user.email === email) {
+      return userID;
+    }
+  }
+  return false;
+};
+
 // object to store urls
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -122,8 +133,16 @@ app.post("/urls/:id", (req, res) => {
   res.redirect("/urls");
 });
 
-// adds a new user to the users object
+
 app.post("/register", (req, res) => {
+  // checks if the email or password inputs are empty or if the email already exists
+  if (req.body.email === "" || req.body.password === "") {
+    res.status(400).send("Email or Password was empty");
+  }
+  if (getUserByEmail(req.body.email) !== false) {
+    res.status(400).send("Email already exists");
+  }
+  // creates an random user_id and stores it as a cookie and an object in the users object
   const randomID = generateRandomString();
   res.cookie("user_id", randomID);
   users[randomID] = {
@@ -132,7 +151,7 @@ app.post("/register", (req, res) => {
     password: req.body.password,
   };
   console.log(users);
-  res.redirect("/urls")
+  res.redirect("/urls");
 });
 
 // PORT = 8080
