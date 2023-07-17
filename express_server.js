@@ -74,7 +74,11 @@ app.get("/urls/new", (req, res) => {
   const templateVars = {
     user: users[req.cookies["user_id"]]
   };
-  res.render("urls_new", templateVars);
+  if (!templateVars.user) {
+    res.redirect("/login");
+  } else {
+    res.render("urls_new", templateVars);
+  }
 });
 
 // route to redirect to longURL
@@ -100,8 +104,9 @@ app.get("/register", (req, res) => {
   }
   if (templateVars.user) {
     res.redirect("/urls");
+  } else {
+    res.render("urls_register", templateVars);
   }
-  res.render("urls_register", templateVars);
 });
 
 // route to Login with email and password
@@ -111,8 +116,9 @@ app.get("/login", (req, res) => {
   }
   if (templateVars.user) {
     res.redirect("/urls");
+  } else {
+    res.render("urls_login", templateVars);
   }
-  res.render("urls_login", templateVars);
 });
 
 ///////////////////
@@ -121,9 +127,16 @@ app.get("/login", (req, res) => {
 
 // generates a random shortURL and stores it inside the urldatabase as a key with a value of the longURL
 app.post("/urls", (req, res) => {
-  const shortURL = generateRandomString();
-  urlDatabase[shortURL] = req.body.longURL;
-  res.redirect(`/urls/${shortURL}`);
+  const templateVars = {
+    user: users[req.cookies["user_id"]],
+  }
+  if (!templateVars.user) {
+    res.status(401).send("Please log in to shorten URLs.");
+  } else {
+    const shortURL = generateRandomString();
+    urlDatabase[shortURL] = req.body.longURL;
+    res.redirect(`/urls/${shortURL}`);
+  }
 });
 
 // logs out by clearing the username cookie and reloading /urls
