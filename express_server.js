@@ -32,6 +32,17 @@ const getUserByEmail = function(email) {
   return false;
 };
 
+// function to return URLS when the userID is equal to the id of the current logged in user
+const urlsForUser = function(database, req) {
+  const userURLs = {}; 
+  for (const url in database) {
+    if (database[url].userID === req.cookies["user_id"]) {
+      userURLs[url] = database[url];
+    }
+  }
+  return userURLs;
+};
+
 // object to store urls
 const urlDatabase = {
   "b2xVn2": {
@@ -70,7 +81,7 @@ app.get("/", (req, res) => {
 app.get("/urls", (req, res) => {
   const templateVars = {
     user: users[req.cookies["user_id"]],
-    urls: urlDatabase,
+    urls: urlsForUser(urlDatabase, req),
   };
   res.render("urls_index", templateVars);
 });
@@ -104,7 +115,13 @@ app.get("/urls/:id", (req, res) => {
     id: req.params.id,
     longURL: urlDatabase[req.params.id].longURL,
   };
-  res.render("urls_show", templateVars);
+  if (!req.cookies["user_id"]) {
+    res.send("Must be logged in to view a URL");
+  } else if (req.cookies["user_id"] !== urlDatabase[req.params.id].userID) {
+    res.send("You do not own this URL");
+  } else {
+    res.render("urls_show", templateVars);
+  }
 });
 
 // route to register email and password
