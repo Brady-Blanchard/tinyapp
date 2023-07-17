@@ -98,6 +98,10 @@ app.get("/register", (req, res) => {
   res.render("urls_register");
 });
 
+// 
+app.get("/login", (req, res) => {
+  res.render("urls_login");
+});
 ///////////////////
 // POST REQUESTS //
 ///////////////////
@@ -117,7 +121,7 @@ app.post("/logout", (req, res) => {
 
 // submits the username as a cookie to login
 app.post("/login", (req, res) => {
-  res.redirect("/urls");
+  res.redirect("/login");
 });
 
 // deletes short urls from the urlDatabase
