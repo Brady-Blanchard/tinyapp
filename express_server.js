@@ -110,6 +110,11 @@ app.get("/u/:id", (req, res) => {
 
 // route to display the data of a specific url
 app.get("/urls/:id", (req, res) => {
+  // console.log(req.params.id);
+  // console.log(urlDatabase[req.params.id]);
+  if (!urlDatabase[req.params.id]) {
+    res.send("URL does not exist");
+  }
   const templateVars = {
     user: users[req.cookies["user_id"]],
     id: req.params.id,
@@ -152,7 +157,7 @@ app.get("/login", (req, res) => {
 // POST REQUESTS //
 ///////////////////
 
-// generates a random shortURL and stores it inside the urldatabase as a key with a value of the longURL
+// generates a random shortURL and stores it inside the urldatabase
 app.post("/urls", (req, res) => {
   const templateVars = {
     user: users[req.cookies["user_id"]],
@@ -194,15 +199,31 @@ app.post("/login", (req, res) => {
 
 // deletes short urls from the urlDatabase
 app.post("/urls/:id/delete", (req, res) => {
-  delete urlDatabase[req.params.id];
-  res.redirect("/urls");
+  if (!urlDatabase[req.params.id]) {
+    res.send("URL does not exist");
+  } else if (!req.cookies["user_id"]) {
+    res.send("You must be logged in to delete URLs");
+  } else if (req.cookies["user_id"] !== urlDatabase[req.params.id].userID) {
+    res.send("You do not own this URL");
+  } else {
+    delete urlDatabase[req.params.id];
+    res.redirect("/urls");
+  }
 });
 
 // changes the longURL in urlDatabase to a new one defined by user input
 app.post("/urls/:id", (req, res) => {
-  const url = req.body.longURL;
-  urlDatabase[req.params.id].longURL = url;
-  res.redirect("/urls");
+  if (!urlDatabase[req.params.id]) {
+    res.send("URL does not exist")
+  } else if (!req.cookies["user_id"]) {
+    res.send("Must be logged in to view a URL");
+  } else if (req.cookies["user_id"] !== urlDatabase[req.params.id].userID) {
+    res.send("You do not own this URL");
+  } else {
+    const url = req.body.longURL;
+    urlDatabase[req.params.id].longURL = url;
+    res.redirect("/urls");
+  }
 });
 
 
