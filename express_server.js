@@ -1,4 +1,4 @@
-const { getUserByEmail } = require("./helper");
+const { getUserByEmail } = require("./helpers");
 const express = require("express");
 const cookieSession = require('cookie-session');
 const bcrypt = require("bcryptjs");
@@ -179,7 +179,7 @@ app.post("/logout", (req, res) => {
 
 // Logs in by checking if the email and password match an existing userID
 app.post("/login", (req, res) => {
-  if (getUserByEmail(req.body.email, users) !== false) {
+  if (getUserByEmail(req.body.email, users) !== undefined) {
     const user = getUserByEmail(req.body.email, users);
     console.log(user);
     if (bcrypt.compareSync(req.body.password, user.password)) {
@@ -227,22 +227,22 @@ app.post("/register", (req, res) => {
   // checks if the email or password inputs are empty or if the email already exists
   if (req.body.email === "" || req.body.password === "") {
     res.status(400).send("Email or Password was empty");
+  } else if (getUserByEmail(req.body.email, users) !== undefined) {
+      res.status(400).send("Email already exists");
+  } else {
+    // creates a random user_id and stores it as a cookie and an object in the users object
+    const randomID = generateRandomString();
+    req.session.user_id = randomID;
+    const password = req.body.password;
+    const hashedPassword = bcrypt.hashSync(password, 10);
+    users[randomID] = {
+      id: randomID,
+      email: req.body.email,
+      password: hashedPassword,
+    };
+    console.log(users);
+    res.redirect("/urls");
   }
-  if (getUserByEmail(req.body.email, users) !== false) {
-    res.status(400).send("Email already exists");
-  }
-  // creates a random user_id and stores it as a cookie and an object in the users object
-  const randomID = generateRandomString();
-  req.session.user_id = randomID;
-  const password = req.body.password;
-  const hashedPassword = bcrypt.hashSync(password, 10);
-  users[randomID] = {
-    id: randomID,
-    email: req.body.email,
-    password: hashedPassword,
-  };
-  console.log(users);
-  res.redirect("/urls");
 });
 
 // PORT = 8080
