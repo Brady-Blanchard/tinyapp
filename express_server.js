@@ -1,3 +1,4 @@
+const { getUserByEmail } = require("./helper");
 const express = require("express");
 const cookieSession = require('cookie-session');
 const bcrypt = require("bcryptjs");
@@ -25,16 +26,7 @@ const generateRandomString = function() {
   return result;
 };
 
-// function to check if an email is already attached to a user in the users object
-const getUserByEmail = function(email, database) {
-  for (const userID in database) {
-    const user = database[userID];
-    if (user.email === email) {
-      return user;
-    }
-  }
-  return false;
-};
+
 
 // function to return URLS when the userID is equal to the id of the current logged in user
 const urlsForUser = function(database, req) {
