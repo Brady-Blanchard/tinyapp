@@ -1,5 +1,5 @@
 const express = require("express");
-const cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session');
 const bcrypt = require("bcryptjs");
 const app = express();
 const PORT = 8080; // default port 8080
@@ -7,7 +7,10 @@ const PORT = 8080; // default port 8080
 // setup
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
+app.use(cookieSession({
+  name: 'session',
+  keys: ['key1', 'key2'],
+}));
 
 
 // function to generate a random 6 character alphanumeric string to use for shortURL
@@ -37,7 +40,7 @@ const getUserByEmail = function(email) {
 const urlsForUser = function(database, req) {
   const userURLs = {}; 
   for (const url in database) {
-    if (database[url].userID === req.cookies["user_id"]) {
+    if (database[url].userID === req.session.user_id) {
       userURLs[url] = database[url];
     }
   }
@@ -81,7 +84,7 @@ app.get("/", (req, res) => {
 // route to display all of our stored urls
 app.get("/urls", (req, res) => {
   const templateVars = {
-    user: users[req.cookies["user_id"]],
+    user: users[req.session.user_id],
     urls: urlsForUser(urlDatabase, req),
   };
   res.render("urls_index", templateVars);
@@ -90,7 +93,7 @@ app.get("/urls", (req, res) => {
 // route to input a new url to shorten
 app.get("/urls/new", (req, res) => {
   const templateVars = {
-    user: users[req.cookies["user_id"]]
+    user: users[req.session.user_id]
   };
   if (!templateVars.user) {
     res.redirect("/login");
@@ -117,13 +120,13 @@ app.get("/urls/:id", (req, res) => {
     res.send("URL does not exist");
   }
   const templateVars = {
-    user: users[req.cookies["user_id"]],
+    user: users[req.session.user_id],
     id: req.params.id,
     longURL: urlDatabase[req.params.id].longURL,
   };
-  if (!req.cookies["user_id"]) {
+  if (!req.session.user_id) {
     res.send("Must be logged in to view a URL");
-  } else if (req.cookies["user_id"] !== urlDatabase[req.params.id].userID) {
+  } else if (req.session.user_id !== urlDatabase[req.params.id].userID) {
     res.send("You do not own this URL");
   } else {
     res.render("urls_show", templateVars);
@@ -133,7 +136,7 @@ app.get("/urls/:id", (req, res) => {
 // route to register email and password
 app.get("/register", (req, res) => {
   const templateVars = {
-    user: users[req.cookies["user_id"]],
+    user: users[req.session.user_id],
   }
   if (templateVars.user) {
     res.redirect("/urls");
@@ -145,7 +148,7 @@ app.get("/register", (req, res) => {
 // route to Login with email and password
 app.get("/login", (req, res) => {
   const templateVars = {
-    user: users[req.cookies["user_id"]],
+    user: users[req.session.user_id],
   }
   if (templateVars.user) {
     res.redirect("/urls");
@@ -161,7 +164,7 @@ app.get("/login", (req, res) => {
 // generates a random shortURL and stores it inside the urldatabase
 app.post("/urls", (req, res) => {
   const templateVars = {
-    user: users[req.cookies["user_id"]],
+    user: users[req.session.user_id],
   }
   if (!templateVars.user) {
     res.status(401).send("Please log in to shorten URLs.");
@@ -169,7 +172,7 @@ app.post("/urls", (req, res) => {
     const shortURL = generateRandomString();
     urlDatabase[shortURL] = {
       longURL: req.body.longURL,
-      userID: req.cookies["user_id"],
+      userID: req.session.user_id,
     };
     console.log(urlDatabase);
     res.redirect(`/urls/${shortURL}`);
@@ -178,7 +181,7 @@ app.post("/urls", (req, res) => {
 
 // logs out by clearing the username cookie and reloading /urls
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id");
+  req.session = null;
   res.redirect("/login");
 });
 
@@ -188,7 +191,7 @@ app.post("/login", (req, res) => {
     const user = getUserByEmail(req.body.email)
     console.log(user);
     if (bcrypt.compareSync(req.body.password, user.password)) {
-      res.cookie("user_id", user.id);
+      req.session.user_id = user.id;
       res.redirect("/urls");
     } else {
       res.status(403).send("password is incorrect");
@@ -202,9 +205,9 @@ app.post("/login", (req, res) => {
 app.post("/urls/:id/delete", (req, res) => {
   if (!urlDatabase[req.params.id]) {
     res.send("URL does not exist");
-  } else if (!req.cookies["user_id"]) {
+  } else if (!req.session.user_id) {
     res.send("You must be logged in to delete URLs");
-  } else if (req.cookies["user_id"] !== urlDatabase[req.params.id].userID) {
+  } else if (req.session.user_id !== urlDatabase[req.params.id].userID) {
     res.send("You do not own this URL");
   } else {
     delete urlDatabase[req.params.id];
@@ -216,9 +219,9 @@ app.post("/urls/:id/delete", (req, res) => {
 app.post("/urls/:id", (req, res) => {
   if (!urlDatabase[req.params.id]) {
     res.send("URL does not exist")
-  } else if (!req.cookies["user_id"]) {
+  } else if (!req.session.user_id) {
     res.send("Must be logged in to view a URL");
-  } else if (req.cookies["user_id"] !== urlDatabase[req.params.id].userID) {
+  } else if (req.session.user_id !== urlDatabase[req.params.id].userID) {
     res.send("You do not own this URL");
   } else {
     const url = req.body.longURL;
@@ -238,7 +241,7 @@ app.post("/register", (req, res) => {
   }
   // creates a random user_id and stores it as a cookie and an object in the users object
   const randomID = generateRandomString();
-  res.cookie("user_id", randomID);
+  req.session.user_id = randomID;
   const password = req.body.password;
   const hashedPassword = bcrypt.hashSync(password, 10);
   users[randomID] = {
