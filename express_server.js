@@ -26,9 +26,9 @@ const generateRandomString = function() {
 };
 
 // function to check if an email is already attached to a user in the users object
-const getUserByEmail = function(email) {
-  for (const userID in users) {
-    const user = users[userID];
+const getUserByEmail = function(email, database) {
+  for (const userID in database) {
+    const user = database[userID];
     if (user.email === email) {
       return user;
     }
@@ -187,8 +187,8 @@ app.post("/logout", (req, res) => {
 
 // Logs in by checking if the email and password match an existing userID
 app.post("/login", (req, res) => {
-  if (getUserByEmail(req.body.email) !== false) {
-    const user = getUserByEmail(req.body.email)
+  if (getUserByEmail(req.body.email, users) !== false) {
+    const user = getUserByEmail(req.body.email, users);
     console.log(user);
     if (bcrypt.compareSync(req.body.password, user.password)) {
       req.session.user_id = user.id;
@@ -236,7 +236,7 @@ app.post("/register", (req, res) => {
   if (req.body.email === "" || req.body.password === "") {
     res.status(400).send("Email or Password was empty");
   }
-  if (getUserByEmail(req.body.email) !== false) {
+  if (getUserByEmail(req.body.email, users) !== false) {
     res.status(400).send("Email already exists");
   }
   // creates a random user_id and stores it as a cookie and an object in the users object
