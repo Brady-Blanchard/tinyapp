@@ -106,8 +106,6 @@ app.get("/u/:id", (req, res) => {
 
 // route to display the data of a specific url
 app.get("/urls/:id", (req, res) => {
-  // console.log(req.params.id);
-  // console.log(urlDatabase[req.params.id]);
   if (!urlDatabase[req.params.id]) {
     res.send("URL does not exist");
   }
@@ -166,7 +164,6 @@ app.post("/urls", (req, res) => {
       longURL: req.body.longURL,
       userID: req.session.user_id,
     };
-    console.log(urlDatabase);
     res.redirect(`/urls/${shortURL}`);
   }
 });
@@ -181,7 +178,6 @@ app.post("/logout", (req, res) => {
 app.post("/login", (req, res) => {
   if (getUserByEmail(req.body.email, users) !== undefined) {
     const user = getUserByEmail(req.body.email, users);
-    console.log(user);
     if (bcrypt.compareSync(req.body.password, user.password)) {
       req.session.user_id = user.id;
       res.redirect("/urls");
@@ -240,7 +236,6 @@ app.post("/register", (req, res) => {
       email: req.body.email,
       password: hashedPassword,
     };
-    console.log(users);
     res.redirect("/urls");
   }
 });
