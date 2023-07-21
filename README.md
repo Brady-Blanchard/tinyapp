@@ -5,13 +5,13 @@ TinyApp is a full stack web application built with Node and Express that allows 
 ## Final Product
 
 ### Login Page
-!["Login Page"](https://i.imgur.com/UuTsRZZ.png)
+!["Screenshot of Login Page"](https://github.com/Brady-Blanchard/tinyapp/blob/master/docs/tinyapp-login-page.png)
 
 ### Main Page
-!["Main Page"](https://i.imgur.com/jVWk7aA.png)
+!["Screenshot of Main Page"](https://github.com/Brady-Blanchard/tinyapp/blob/master/docs/tinyapp-main-page.png)
 
 ### URL Page
-!["URL Page"](https://i.imgur.com/3mwQRCd.png)
+!["Screenshot of URL Page"](https://github.com/Brady-Blanchard/tinyapp/blob/master/docs/tinyapp-url-page.png)
 
 ## Dependencies
 
