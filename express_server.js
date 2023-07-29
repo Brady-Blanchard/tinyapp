@@ -30,7 +30,7 @@ const generateRandomString = function() {
 
 // function to return URLS when the userID is equal to the id of the current logged in user
 const urlsForUser = function(database, req) {
-  const userURLs = {}; 
+  const userURLs = {};
   for (const url in database) {
     if (database[url].userID === req.session.user_id) {
       userURLs[url] = database[url];
@@ -69,8 +69,16 @@ const users = {
 // GET REQUESTS //
 //////////////////
 
+// root redirects you to login or urls depending if your logged in or not
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  const templateVars = {
+    user: users[req.session.user_id],
+  };
+  if (!templateVars.user) {
+    res.redirect("/login");
+  } else {
+    res.redirect("/urls");
+  }
 });
 
 // route to display all of our stored urls
@@ -79,7 +87,11 @@ app.get("/urls", (req, res) => {
     user: users[req.session.user_id],
     urls: urlsForUser(urlDatabase, req),
   };
-  res.render("urls_index", templateVars);
+  if (!templateVars.user) {
+    res.send("Must be logged in to view a URL");
+  } else {
+    res.render("urls_index", templateVars);
+  }
 });
 
 // route to input a new url to shorten
@@ -97,7 +109,7 @@ app.get("/urls/new", (req, res) => {
 // route to redirect to longURL
 app.get("/u/:id", (req, res) => {
   if (!urlDatabase[req.params.id]) {
-    res.send("The short URL you entered does not exist")
+    res.send("The short URL you entered does not exist");
   } else {
     const longURL = urlDatabase[req.params.id].longURL;
     res.redirect(longURL);
@@ -127,7 +139,7 @@ app.get("/urls/:id", (req, res) => {
 app.get("/register", (req, res) => {
   const templateVars = {
     user: users[req.session.user_id],
-  }
+  };
   if (templateVars.user) {
     res.redirect("/urls");
   } else {
@@ -139,7 +151,7 @@ app.get("/register", (req, res) => {
 app.get("/login", (req, res) => {
   const templateVars = {
     user: users[req.session.user_id],
-  }
+  };
   if (templateVars.user) {
     res.redirect("/urls");
   } else {
@@ -155,7 +167,7 @@ app.get("/login", (req, res) => {
 app.post("/urls", (req, res) => {
   const templateVars = {
     user: users[req.session.user_id],
-  }
+  };
   if (!templateVars.user) {
     res.status(401).send("Please log in to shorten URLs.");
   } else {
@@ -206,7 +218,7 @@ app.post("/urls/:id/delete", (req, res) => {
 // changes the longURL in urlDatabase to a new one defined by user input
 app.post("/urls/:id", (req, res) => {
   if (!urlDatabase[req.params.id]) {
-    res.send("URL does not exist")
+    res.send("URL does not exist");
   } else if (!req.session.user_id) {
     res.send("Must be logged in to view a URL");
   } else if (req.session.user_id !== urlDatabase[req.params.id].userID) {
@@ -224,7 +236,7 @@ app.post("/register", (req, res) => {
   if (req.body.email === "" || req.body.password === "") {
     res.status(400).send("Email or Password was empty");
   } else if (getUserByEmail(req.body.email, users) !== undefined) {
-      res.status(400).send("Email already exists");
+    res.status(400).send("Email already exists");
   } else {
     // creates a random user_id and stores it as a cookie and an object in the users object
     const randomID = generateRandomString();
